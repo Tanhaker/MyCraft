@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>The MyCraft Workshop — walk through our work</title>
+  <meta name="description"
+    content="An explorable 3D workshop. Walk to a bench to see what MyCraft has built. Prefer the normal site? It's one tap away.">
+  <meta name="theme-color" content="#111815">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --ink: #111815;
+      --ink-2: #1A2320;
+      --ink-3: #26332E;
+      --line: #33443D;
+      --paper: #F0EDE4;
+      --muted: #93A69E;
+      --marigold: #E9A227;
+      --sage: #7FBBA3;
+      --r: 3px;
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+      overscroll-behavior: none;
+    }
+
+    a { color: inherit }
+
+    ::selection { background: var(--marigold); color: var(--ink) }
+
+    .mono {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    h1, h2, h3 {
+      font-family: "Bricolage Grotesque", system-ui, sans-serif;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -.025em;
+      margin: 0;
+    }
+
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--sage);
+      outline-offset: 3px;
+    }
+
+    /* ---------- canvas ---------- */
+    #scene {
+      position: fixed;
+      inset: 0;
+      display: block;
+      touch-action: none;
+    }
+
+    /* ---------- top bar ---------- */
+    #hud-top {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      pointer-events: none;
+      background: linear-gradient(to bottom, rgba(17,24,21,.85), rgba(17,24,21,0));
+    }
+
+    #hud-top > * { pointer-events: auto }
+
+    .logo {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -.03em;
+      text-decoration: none;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .logo span { color: var(--marigold) }
+
+    .logo small {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 9.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    @media (max-width: 560px) { .logo small { display: none } }
+
+    .escape {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--paper);
+      background: rgba(26,35,32,.9);
+      border: 1px solid var(--line);
+      padding: 9px 13px;
+      border-radius: var(--r);
+      white-space: nowrap;
+    }
+
+    .escape:hover { border-color: var(--paper) }
+    .escape b { color: var(--marigold); font-weight: 500 }
+
+    /* ---------- progress ---------- */
+    #progress {
+      position: fixed;
+      top: 62px; left: 16px;
+      z-index: 10;
+      background: rgba(26,35,32,.85);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--marigold);
+      border-radius: var(--r);
+      padding: 9px 13px;
+      min-width: 176px;
+      backdrop-filter: blur(6px);
+    }
+
+    #progress .mono { display: block; margin-bottom: 6px }
+
+    #bar {
+      height: 4px;
+      background: var(--ink-3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    #bar i {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: var(--marigold);
+      transition: width .35s cubic-bezier(.2,.8,.2,1);
+    }
+
+    /* ---------- interact prompt ---------- */
+    #prompt {
+      position: fixed;
+      left: 50%;
+      bottom: calc(34px + var(--safe-b));
+      transform: translate(-50%, 14px);
+      z-index: 11;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      background: rgba(26,35,32,.94);
+      border: 1px solid var(--marigold);
+      border-radius: var(--r);
+      padding: 11px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+      box-shadow: 0 10px 34px rgba(0,0,0,.45);
+    }
+
+    #prompt.on {
+      opacity: 1;
+      transform: translate(-50%, 0);
+      pointer-events: auto;
+    }
+
+    .key {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink);
+      background: var(--marigold);
+      border-radius: 2px;
+      padding: 4px 9px;
+      letter-spacing: .1em;
+    }
+
+    #prompt .what { font-weight: 600; font-size: .95rem }
+
+    /* ---------- touch controls ---------- */
+    #stick {
+      position: fixed;
+      left: 22px;
+      bottom: calc(26px + var(--safe-b));
+      width: 132px;
+      height: 132px;
+      z-index: 12;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(26,35,32,.5);
+      display: none;
+      touch-action: none;
+    }
+
+    #stick i {
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 54px; height: 54px;
+      margin: -27px 0 0 -27px;
+      border-radius: 50%;
+      background: rgba(233,162,39,.9);
+      border: 1px solid var(--marigold);
+      transition: transform .06s linear;
+    }
+
+    #tap-act {
+      position: fixed;
+      right: 26px;
+      bottom: calc(46px + var(--safe-b));
+      width: 84px; height: 84px;
+      z-index: 12;
+      border-radius: 50%;
+      border: 1px solid var(--marigold);
+      background: rgba(233,162,39,.16);
+      color: var(--marigold);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: .35;
+      transition: opacity .18s ease, background .18s ease;
+      touch-action: none;
+      cursor: pointer;
+    }
+
+    #tap-act.live { opacity: 1; background: rgba(233,162,39,.32) }
+
+    body.touch #stick { display: block }
+    body.touch #tap-act { display: flex }
+
+    /* ---------- panel ---------- */
+    #panel {
+      position: fixed;
+      top: 0; right: 0;
+      height: 100%;
+      width: min(440px, 100%);
+      z-index: 30;
+      background: var(--ink-2);
+      border-left: 1px solid var(--line);
+      transform: translateX(102%);
+      transition: transform .34s cubic-bezier(.2,.8,.2,1);
+      display: flex;
+      flex-direction: column;
+      box-shadow: -20px 0 60px rgba(0,0,0,.5);
+    }
+
+    #panel.open { transform: none }
+
+    @media (max-width: 620px) {
+      #panel {
+        width: 100%;
+        height: 82%;
+        top: auto; bottom: 0;
+        border-left: none;
+        border-top: 1px solid var(--line);
+        border-radius: 12px 12px 0 0;
+        transform: translateY(102%);
+      }
+    }
+
+    .p-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 22px 22px 16px;
+      border-bottom: 1px dashed var(--line);
+    }
+
+    .p-head h2 { font-size: 1.55rem; margin: 8px 0 0 }
+
+    #p-close {
+      flex: none;
+      width: 36px; height: 36px;
+      border-radius: var(--r);
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--paper);
+      font-size: 17px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    #p-close:hover { border-color: var(--marigold); color: var(--marigold) }
+
+    .p-body {
+      padding: 20px 22px 30px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      font-size: .96rem;
+      line-height: 1.62;
+      color: #C7D0CC;
+    }
+
+    .p-body p { margin: 0 0 1em }
+    .p-body strong { color: var(--paper); font-weight: 600 }
+
+    .p-body h3 {
+      font-size: 1rem;
+      color: var(--paper);
+      margin: 22px 0 8px;
+    }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px }
+
+    .tag {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      padding: 3px 7px;
+      border-radius: 2px;
+    }
+
+    .note {
+      border-left: 3px solid var(--sage);
+      background: rgba(127,187,163,.06);
+      padding: 11px 14px;
+      font-size: .9rem;
+      color: #B9C4BF;
+      margin: 18px 0 0;
+      border-radius: 0 var(--r) var(--r) 0;
+    }
+
+    .rowset { margin: 4px 0 0; border-top: 1px solid var(--line) }
+
+    .rowset div {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(51,68,61,.55);
+      font-size: .93rem;
+    }
+
+    .rowset .k {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-top: 4px;
+    }
+
+    .plan-line {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(51,68,61,.55);
+    }
+
+    .plan-line b {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: -.03em;
+      color: var(--paper);
+    }
+
+    .btn {
+      display: inline-block;
+      font-weight: 600;
+      font-size: .95rem;
+      padding: 12px 20px;
+      border-radius: var(--r);
+      text-decoration: none;
+      border: 1px solid var(--marigold);
+      background: var(--marigold);
+      color: var(--ink);
+      margin-top: 18px;
+    }
+
+    .btn.ghost { background: transparent; color: var(--paper); border-color: var(--line) }
+    .btn.ghost:hover { border-color: var(--paper) }
+
+    /* ---------- toast ---------- */
+    #toast {
+      position: fixed;
+      left: 50%;
+      top: 78px;
+      transform: translate(-50%, -12px);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease, transform .3s ease;
+      background: rgba(26,35,32,.95);
+      border: 1px solid var(--sage);
+      border-radius: var(--r);
+      padding: 12px 18px;
+      text-align: center;
+      max-width: min(400px, calc(100vw - 32px));
+      box-shadow: 0 12px 40px rgba(0,0,0,.5);
+    }
+
+    #toast.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto }
+    #toast b { display: block; font-family: "Bricolage Grotesque", sans-serif; font-size: 1.05rem; margin-bottom: 3px }
+    #toast span { font-size: .9rem; color: #B9C4BF }
+    #toast a { color: var(--marigold); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--marigold) }
+
+    /* ---------- gate / loader ---------- */
+    #gate {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 26px;
+      transition: opacity .5s ease;
+    }
+
+    #gate.gone { opacity: 0; pointer-events: none }
+
+    .gate-card {
+      width: 100%;
+      max-width: 470px;
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      position: relative;
+      overflow: hidden;
+      padding: 30px 28px 26px;
+    }
+
+    .gate-card::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--marigold);
+    }
+
+    .gate-card h1 { font-size: clamp(1.9rem, 6vw, 2.5rem); margin: 14px 0 12px }
+    .gate-card h1 em { font-style: normal; color: var(--marigold) }
+
+    .gate-card p { color: #B9C4BF; font-size: .97rem; margin: 0 0 14px }
+
+    .ctl {
+      display: grid;
+      gap: 8px;
+      margin: 18px 0 4px;
+      padding: 14px 0 4px;
+      border-top: 1px dashed var(--line);
+    }
+
+    .ctl div { display: flex; align-items: center; gap: 10px; font-size: .88rem; color: #B9C4BF }
+
+    .ctl .key { flex: none }
+
+    #enter {
+      width: 100%;
+      margin-top: 20px;
+      font-family: "Instrument Sans", sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 15px;
+      border-radius: var(--r);
+      border: 1px solid var(--marigold);
+      background: var(--marigold);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    #enter[disabled] { opacity: .45; cursor: default }
+
+    .gate-out {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .gate-out:hover { color: var(--paper) }
+
+    /* ---------- hard fallback ---------- */
+    #nogl {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: var(--ink);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 26px;
+      text-align: center;
+    }
+
+    #nogl.on { display: flex }
+
+    @media (prefers-reduced-motion: reduce) {
+      #panel, #prompt, #toast, #gate, #bar i { transition: none !important }
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <!-- =============== HUD =============== -->
+  <div id="hud-top">
+    <a class="logo" href="index.html">My<span>Craft</span><small>Workshop floor</small></a>
+    <a class="escape" href="index.html"><b>&larr;</b> Normal site</a>
+  </div>
+
+  <div id="progress">
+    <span class="mono">Benches inspected</span>
+    <div id="bar"><i></i></div>
+  </div>
+
+  <div id="prompt" role="status">
+    <span class="key" id="prompt-key">E</span>
+    <span class="what" id="prompt-what">Inspect</span>
+  </div>
+
+  <div id="stick" aria-hidden="true"><i></i></div>
+  <button id="tap-act" aria-label="Inspect this bench">Look</button>
+
+  <!-- =============== PANEL =============== -->
+  <aside id="panel" aria-hidden="true" aria-label="Bench details">
+    <div class="p-head">
+      <div>
+        <span class="mono" id="p-kicker">Bench</span>
+        <h2 id="p-title">Title</h2>
+      </div>
+      <button id="p-close" aria-label="Close">&#10005;</button>
+    </div>
+    <div class="p-body" id="p-body"></div>
+  </aside>
+
+  <!-- =============== TOAST =============== -->
+  <div id="toast" role="status">
+    <b>Whole workshop seen.</b>
+    <span>That's everything we've built. <a href="https://wa.me/919601526673">Tell us about your business &rarr;</a></span>
+  </div>
+
+  <!-- =============== GATE =============== -->
+  <div id="gate">
+    <div class="gate-card">
+      <span class="mono">MyCraft · Rajkot · Interactive</span>
+      <h1>Walk the floor.<br><em>See what we make.</em></h1>
+      <p>Our work laid out as a workshop. Move around, stop at a bench, look at what's on it. Nothing to install &mdash;
+        it runs in this browser.</p>
+
+      <div class="ctl">
+        <div><span class="key">W A S D</span> or arrow keys &mdash; move</div>
+        <div><span class="key">E</span> &mdash; inspect the bench you're standing at</div>
+        <div><span class="key">ESC</span> &mdash; close a bench</div>
+      </div>
+
+      <button id="enter" disabled>Loading workshop&hellip;</button>
+      <a class="gate-out" href="index.html">Or just read the normal site &rarr;</a>
+    </div>
+  </div>
+
+  <!-- =============== NO-WEBGL FALLBACK =============== -->
+  <div id="nogl">
+    <div class="gate-card" style="max-width:420px">
+      <span class="mono">Heads up</span>
+      <h1 style="font-size:1.7rem">This device can't run the 3D floor.</h1>
+      <p>No problem &mdash; everything here is on the normal site too, and it loads faster.</p>
+      <a class="btn" href="index.html">Go to the normal site</a>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.1/build/three.module.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    /* ============================================================
+       0. CONTENT — all copy lives here, nothing invented.
+       ============================================================ */
+
+    const C = {
+      ink: 0x111815, ink2: 0x1A2320, ink3: 0x26332E,
+      line: 0x33443D, paper: 0xF0EDE4, muted: 0x93A69E,
+      marigold: 0xE9A227, sage: 0x7FBBA3
+    };
+
+    const TAGS = a => `<div class="tags">${a.map(t => `<span class="tag">${t}</span>`).join('')}</div>`;
+
+    const STATIONS = [
+      {
+        id: 'scholarnode', kind: 'bench', pos: [-13, -15], screen: C.sage,
+        label: 'ScholarNode', kicker: 'Education',
+        body: `<p>Our own education venture &mdash; AI workshops delivered in schools across Gujarat, with co-branded
+               certificates.</p>
+               <p>We designed and built the whole platform: <strong>enrolment, school portal, payments and certificate
+               issue</strong>.</p>
+               ${TAGS(['Next.js', 'Supabase', 'Razorpay', 'Enrolment flow'])}
+               <div class="note">Straight answer: this is our own venture, not a paying client.</div>`
+      },
+      {
+        id: 'vidyavani', kind: 'bench', pos: [0, -16], screen: C.marigold,
+        label: 'VidyaVani', kicker: 'Education · AI',
+        body: `<p>A Gujarati-medium learning platform that answers student questions <strong>in their own
+               language</strong>.</p>
+               <p>Built for an AI Summit challenge, using Google's Gemini API for the language work.</p>
+               ${TAGS(['Gujarati-first', 'Gemini API', 'Web app'])}
+               <div class="note">Built for a hackathon, not a client.</div>`
+      },
+      {
+        id: 'valuation', kind: 'bench', pos: [13, -15], screen: 0xC8D6D0,
+        label: 'Valuation reports', kicker: 'Business tooling · Rajkot',
+        body: `<p>A valuer in Rajkot was writing every report by hand. We built a web tool where the details go into a
+               form and a <strong>finished, formatted report comes out</strong> &mdash; hours of typing cut to
+               minutes.</p>
+               ${TAGS(['Flask', 'Document automation', 'Smart forms'])}
+               <div class="note">Real day-to-day use by a Rajkot business.</div>`
+      },
+      {
+        id: 'tally', kind: 'bench', pos: [-18, -2], screen: C.sage, rot: Math.PI / 2,
+        label: 'Tally', kicker: 'Web app',
+        body: `<p>A group trip needed one clear record of who paid what. We built a mobile-first app that tracks
+               contributions, splits cash from bank money, and shows the balance at a glance.</p>
+               <p><strong>Live on the web, no app store needed.</strong></p>
+               ${TAGS(['Mobile-first', 'Works offline', 'Live on Netlify'])}`
+      },
+      {
+        id: 'aadita', kind: 'bench', pos: [-18, 9], screen: C.marigold, rot: Math.PI / 2,
+        label: 'Aadita Jwellery', kicker: 'Retail · Jewellery',
+        body: `<p>Product advertising videos for an imitation jewellery business &mdash; built so the
+               <strong>stones and finish stay true on camera</strong>, and the pieces look the way they do in the
+               shop.</p>
+               <p>Flat lighting, no light-sweep, slow camera moves. Jewellery punishes anything flashier.</p>
+               ${TAGS(['Video ads', 'Product visuals', 'Social content'])}`
+      },
+      {
+        id: 'aideaforge', kind: 'bench', pos: [18, -2], screen: 0xC8D6D0, rot: -Math.PI / 2,
+        label: 'AIdeaForge', kicker: 'Language tech',
+        body: `<p>A Gujarati transliteration tool that reads signage and converts it &mdash; Python backend, deployed
+               live.</p>
+               <p>Useful groundwork for anything that has to handle <strong>Gujarati text properly on the web</strong>.</p>
+               ${TAGS(['FastAPI', 'Gujarati text', 'Deployed'])}`
+      },
+      {
+        id: 'pricing', kind: 'board', pos: [18, 9], screen: C.marigold, rot: -Math.PI / 2,
+        label: 'Price board', kicker: 'Pricing',
+        body: `<p>Fixed packages. No quotations, no "depends on requirement". What you see is what you pay.</p>
+               <div class="plan-line"><span>Starter &mdash; single page</span><b>&#8377;6,000</b></div>
+               <div class="plan-line"><span>Business &mdash; 4&ndash;6 pages</span><b>&#8377;12,000</b></div>
+               <div class="plan-line"><span>Care plan &mdash; per month</span><b>&#8377;1,500</b></div>
+               <h3>Care plan covers</h3>
+               <p>Hosting and domain renewal &middot; content and fee updates &middot; new photos monthly &middot; we fix
+               anything that breaks &middot; cancel any time.</p>
+               <a class="btn" href="index.html#pricing">See the full breakdown</a>`
+      },
+      {
+        id: 'process', kind: 'belt', pos: [-10, 14],
+        label: 'The 7-day line', kicker: 'How it works',
+        body: `<p>You'll know exactly where the work stands at every stage. No long email chains, no surprises.</p>
+               <div class="rowset">
+                 <div><span class="k">Day 1</span><span><strong>We visit you.</strong> Twenty minutes to understand what
+                   you do and who your customers are. We take photos if you need them.</span></div>
+                 <div><span class="k">Day 2&ndash;4</span><span><strong>First version.</strong> A working site on a real
+                   link &mdash; not a picture of one. Open it on your phone.</span></div>
+                 <div><span class="k">Day 5&ndash;6</span><span><strong>You review, we fix.</strong> Two rounds of
+                   changes included.</span></div>
+                 <div><span class="k">Day 7</span><span><strong>Live.</strong> Domain, hosting and your Google listing
+                   connected. You get the login.</span></div>
+               </div>`
+      },
+      {
+        id: 'contact', kind: 'desk', pos: [10, 14],
+        label: 'Front desk', kicker: 'Get in touch',
+        body: `<p>Send us your name and what you do. We'll reply the same day with what we'd build and what it costs.</p>
+               <div class="rowset">
+                 <div><span class="k">WhatsApp</span><a href="https://wa.me/919601526673">+91 96015 26673</a></div>
+                 <div><span class="k">Call</span><a href="tel:+918734881141">+91 87348 81141</a></div>
+                 <div><span class="k">Email</span><a href="mailto:gajjartanmayh@gmail.com">gajjartanmayh@gmail.com</a></div>
+                 <div><span class="k">Based in</span><span>Rajkot, Gujarat</span></div>
+               </div>
+               <a class="btn" href="https://wa.me/919601526673">Message on WhatsApp</a>
+               <a class="btn ghost" href="index.html" style="margin-left:8px">Normal site</a>`
+      }
+    ];
+
+    /* ============================================================
+       1. BOOT — fail loudly to the normal site, never a blank screen.
+       ============================================================ */
+
+    const $ = s => document.querySelector(s);
+    const gate = $('#gate'), enterBtn = $('#enter');
+    const isTouch = matchMedia('(pointer:coarse)').matches;
+    const lowPower = isTouch || navigator.hardwareConcurrency <= 4;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (isTouch) document.body.classList.add('touch');
+
+    function bail() {
+      $('#nogl').classList.add('on');
+      gate.classList.add('gone');
+    }
+
+    // WebGL support check before we build anything — stop the module dead if absent.
+    let glOk = false;
+    try {
+      const t = document.createElement('canvas');
+      glOk = !!(t.getContext('webgl2') || t.getContext('webgl'));
+    } catch (e) { glOk = false; }
+    if (!glOk) { bail(); throw new Error('no webgl on this device'); }
+
+    // Touch users get taps, not keystrokes — don't show them key hints.
+    if (isTouch) {
+      document.querySelector('.ctl').innerHTML =
+        '<div><span class="key">Drag</span> the round pad, bottom left &mdash; move</div>' +
+        '<div><span class="key">Tap</span> the orange button &mdash; inspect the bench you\'re at</div>' +
+        '<div><span class="key">&#10005;</span> &mdash; close a bench and carry on</div>';
+    }
+
+    /* ============================================================
+       2. SCENE
+       ============================================================ */
+
+    const canvas = $('#scene');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: !lowPower, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, lowPower ? 1.3 : 1.75));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.shadowMap.enabled = !lowPower;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(C.ink);
+    scene.fog = new THREE.Fog(C.ink, 34, 76);
+
+    const camera = new THREE.PerspectiveCamera(46, 1, 0.5, 160);
+    const CAM_OFF = new THREE.Vector3(0, 19, 21);
+
+    function resize() {
+      const w = innerWidth, h = innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      // Portrait phones need the camera pulled back or the room clips.
+      const k = h > w ? 1.34 : 1;
+      camera.position.copy(CAM_OFF).multiplyScalar(k);
+      camera.updateProjectionMatrix();
+    }
+    addEventListener('resize', resize);
+
+    // ---- lights (cheap: 1 hemi + 1 directional, nothing per-object) ----
+    scene.add(new THREE.HemisphereLight(0x9FB8AE, 0x0B100E, 1.05));
+
+    const sun = new THREE.DirectionalLight(0xFFE9C4, 1.5);
+    sun.position.set(14, 26, 12);
+    if (!lowPower) {
+      sun.castShadow = true;
+      sun.shadow.mapSize.set(1024, 1024);
+      const s = sun.shadow.camera;
+      s.left = -26; s.right = 26; s.top = 26; s.bottom = -26; s.far = 70;
+      sun.shadow.bias = -0.0008;
+    }
+    scene.add(sun);
+
+    // A dim marigold fill from the opposite side so the far walls read.
+    const fill = new THREE.DirectionalLight(C.marigold, 0.32);
+    fill.position.set(-16, 12, -14);
+    scene.add(fill);
+
+    /* ---- shared materials (reuse = fewer GPU programs) ---- */
+    const M = {
+      floor: new THREE.MeshLambertMaterial({ color: 0x18211D }),
+      wall: new THREE.MeshLambertMaterial({ color: C.ink2 }),
+      wood: new THREE.MeshLambertMaterial({ color: 0x2F3B35 }),
+      woodTop: new THREE.MeshLambertMaterial({ color: 0x3A4841 }),
+      metal: new THREE.MeshLambertMaterial({ color: C.line }),
+      crate: new THREE.MeshLambertMaterial({ color: 0x2A3730 }),
+      marigold: new THREE.MeshLambertMaterial({ color: C.marigold }),
+      sage: new THREE.MeshLambertMaterial({ color: C.sage }),
+      paper: new THREE.MeshLambertMaterial({ color: C.paper }),
+      glowM: new THREE.MeshBasicMaterial({ color: C.marigold }),
+      glowS: new THREE.MeshBasicMaterial({ color: C.sage })
+    };
+
+    const box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+
+    function mesh(geo, mat, x, y, z, parent) {
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(x, y, z);
+      if (!lowPower) { m.castShadow = true; m.receiveShadow = true; }
+      (parent || scene).add(m);
+      return m;
+    }
+
+    /* ---- room ---- */
+    const R = 20;                       // half-size of the floor
+    const BOUND = R - 1.6;              // where the player is stopped
+
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(R * 2, R * 2), M.floor);
+    floor.rotation.x = -Math.PI / 2;
+    if (!lowPower) floor.receiveShadow = true;
+    scene.add(floor);
+
+    const grid = new THREE.GridHelper(R * 2, 20, C.line, 0x223029);
+    grid.position.y = 0.02;
+    grid.material.transparent = true;
+    grid.material.opacity = 0.5;
+    scene.add(grid);
+
+    // walls on three sides — front is left open so the camera sees in
+    const WH = 7;
+    mesh(box(R * 2, WH, .5), M.wall, 0, WH / 2, -R);
+    mesh(box(.5, WH, R * 2), M.wall, -R, WH / 2, 0);
+    mesh(box(.5, WH, R * 2), M.wall, R, WH / 2, 0);
+    // marigold skirting — the brand stripe, and it reads as a floor edge
+    mesh(box(R * 2, .28, .1), M.marigold, 0, .5, -R + .3);
+    mesh(box(.1, .28, R * 2), M.marigold, -R + .3, .5, 0);
+    mesh(box(.1, .28, R * 2), M.marigold, R - .3, .5, 0);
+
+    // hanging lamps: emissive boxes only, no extra lights
+    const lampGeo = box(2.6, .22, 1);
+    for (const [lx, lz] of [[-12, -8], [0, -4], [12, -8], [-8, 8], [8, 8]]) {
+      const l = new THREE.Mesh(lampGeo, M.glowM);
+      l.position.set(lx, 6.1, lz);
+      scene.add(l);
+      const cord = new THREE.Mesh(box(.06, 1, .06), M.metal);
+      cord.position.set(lx, 6.7, lz);
+      scene.add(cord);
+    }
+
+    // crates for depth in the empty corners
+    for (const [cx, cz, cy, cs] of [[-16.5, -17, 0, 1.6], [-16.5, -17, 1.7, 1.2], [16.5, -17, 0, 1.8], [-17, 16, 0, 1.5], [17, 16.5, 0, 1.7]]) {
+      const m = mesh(box(cs, cs, cs), M.crate, cx, cy + cs / 2, cz);
+      m.rotation.y = (cx + cz) * .07;
+    }
+
+    /* ---- 3D text labels via canvas sprites ---- */
+    function labelSprite(text, color) {
+      const cv = document.createElement('canvas');
+      cv.width = 512; cv.height = 96;
+      const g = cv.getContext('2d');
+      g.font = '700 46px "Bricolage Grotesque", system-ui, sans-serif';
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillStyle = color;
+      g.fillText(text, 256, 52);
+      const tex = new THREE.CanvasTexture(cv);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 2;
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+      sp.scale.set(6.4, 1.2, 1);
+      return sp;
+    }
+
+    /* ---- station builders ---- */
+    const beaconGeo = new THREE.OctahedronGeometry(.42);
+
+    function buildBench(g, s) {
+      mesh(box(5.4, .35, 2.4), M.woodTop, 0, 1.55, 0, g);
+      mesh(box(.3, 1.5, .3), M.wood, -2.3, .75, .9, g);
+      mesh(box(.3, 1.5, .3), M.wood, 2.3, .75, .9, g);
+      mesh(box(.3, 1.5, .3), M.wood, -2.3, .75, -.9, g);
+      mesh(box(.3, 1.5, .3), M.wood, 2.3, .75, -.9, g);
+      // monitor: frame + emissive face in the project's colour
+      mesh(box(2.9, 1.9, .18), M.metal, 0, 2.85, -.55, g);
+      const face = new THREE.Mesh(box(2.6, 1.6, .06), new THREE.MeshBasicMaterial({ color: s.screen }));
+      face.position.set(0, 2.85, -.42);
+      g.add(face);
+      mesh(box(.5, .5, .5), M.wood, 1.9, 1.98, .5, g);
+      mesh(box(.9, .12, .5), M.paper, -1.7, 1.79, .55, g);
+    }
+
+    function buildBoard(g) {
+      mesh(box(6, 4.4, .3), M.wood, 0, 3.2, 0, g);
+      mesh(box(.35, 5.4, .35), M.metal, -2.5, 2.7, .3, g);
+      mesh(box(.35, 5.4, .35), M.metal, 2.5, 2.7, .3, g);
+      for (let i = 0; i < 3; i++) {
+        const tagM = new THREE.Mesh(box(4.6, .9, .1), i === 1 ? M.marigold : M.paper);
+        tagM.position.set(0, 4.4 - i * 1.25, .2);
+        g.add(tagM);
+      }
+    }
+
+    function buildBelt(g) {
+      mesh(box(9, .5, 2.2), M.metal, 0, 1.2, 0, g);
+      mesh(box(.35, 1.2, .35), M.wood, -3.9, .6, 0, g);
+      mesh(box(.35, 1.2, .35), M.wood, 3.9, .6, 0, g);
+      g.userData.parts = [];
+      for (let i = 0; i < 4; i++) {
+        const p = mesh(box(.9, .9, .9), i === 3 ? M.sage : M.crate, -3.4 + i * 2.3, 1.9, 0, g);
+        g.userData.parts.push(p);
+      }
+      // day markers along the line
+      for (let i = 0; i < 4; i++) mesh(box(.14, .5, .14), M.marigold, -3.4 + i * 2.3, .95, 1.2, g);
+    }
+
+    function buildDesk(g) {
+      mesh(box(5.6, .35, 2.6), M.woodTop, 0, 1.75, 0, g);
+      mesh(box(5.6, 1.6, .35), M.wood, 0, .8, 1.1, g);
+      mesh(box(.35, 1.6, .35), M.wood, -2.5, .8, -1, g);
+      mesh(box(.35, 1.6, .35), M.wood, 2.5, .8, -1, g);
+      // handset
+      mesh(box(1.4, .3, .8), M.metal, -1.4, 2.05, -.2, g);
+      mesh(box(1.5, .28, .28), M.marigold, -1.4, 2.32, -.2, g);
+      // stack of paper
+      mesh(box(1.3, .3, 1), M.paper, 1.3, 2.05, -.1, g);
+    }
+
+    const built = [];
+
+    STATIONS.forEach(s => {
+      const g = new THREE.Group();
+      g.position.set(s.pos[0], 0, s.pos[1]);
+      g.rotation.y = s.rot || 0;
+      scene.add(g);
+
+      if (s.kind === 'bench') buildBench(g, s);
+      else if (s.kind === 'board') buildBoard(g);
+      else if (s.kind === 'belt') buildBelt(g);
+      else buildDesk(g);
+
+      const beacon = new THREE.Mesh(beaconGeo, M.glowM);
+      beacon.position.set(0, 5.1, 0);
+      g.add(beacon);
+
+      const lab = labelSprite(s.label, '#F0EDE4');
+      lab.position.set(0, 6.2, 0);
+      g.add(lab);
+
+      built.push({ ...s, group: g, beacon, nameSprite: lab, seen: false, v: new THREE.Vector3(s.pos[0], 0, s.pos[1]) });
+    });
+
+    /* ---- player ---- */
+    const player = new THREE.Group();
+    player.position.set(0, 0, 9);
+    scene.add(player);
+
+    const rig = new THREE.Group();       // bobs; keeps position math clean
+    player.add(rig);
+
+    mesh(new THREE.CapsuleGeometry(.52, .95, 4, 10), M.marigold, 0, 1.2, 0, rig);
+    mesh(box(1.02, .8, .55), new THREE.MeshLambertMaterial({ color: 0x2F3B35 }), 0, 1.05, .14, rig); // apron
+    mesh(new THREE.SphereGeometry(.44, 14, 10), M.paper, 0, 2.25, 0, rig);
+    mesh(box(.9, .18, .9), M.wood, 0, 2.6, 0, rig);      // cap
+    mesh(box(.9, .1, .34), M.wood, 0, 2.56, .5, rig);     // cap brim, marks which way you face
+
+    const shadowBlob = new THREE.Mesh(
+      new THREE.CircleGeometry(.85, 18),
+      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: .3 })
+    );
+    shadowBlob.rotation.x = -Math.PI / 2;
+    shadowBlob.position.y = .03;
+    player.add(shadowBlob);
+
+    resize();
+
+    /* ============================================================
+       3. INPUT
+       ============================================================ */
+
+    const keys = new Set();
+    const stickVec = { x: 0, y: 0 };
+    let paused = true;
+
+    addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closePanel(); return; }
+      const k = e.key.toLowerCase();
+      if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k)) e.preventDefault();
+      if ((k === 'e' || k === ' ') && !paused) { tryInteract(); return; }
+      keys.add(k);
+    }, { passive: false });
+
+    addEventListener('keyup', e => keys.delete(e.key.toLowerCase()));
+    addEventListener('blur', () => keys.clear());
+
+    // virtual stick
+    const stick = $('#stick'), knob = stick.querySelector('i');
+    let stickId = null, sox = 0, soy = 0;
+    const MAXR = 44;
+
+    stick.addEventListener('pointerdown', e => {
+      stickId = e.pointerId;
+      const r = stick.getBoundingClientRect();
+      sox = r.left + r.width / 2; soy = r.top + r.height / 2;
+      stick.setPointerCapture(stickId);
+      moveStick(e);
+    });
+
+    stick.addEventListener('pointermove', e => { if (e.pointerId === stickId) moveStick(e); });
+
+    function endStick(e) {
+      if (e.pointerId !== stickId) return;
+      stickId = null; stickVec.x = 0; stickVec.y = 0;
+      knob.style.transform = 'translate(0,0)';
+    }
+    stick.addEventListener('pointerup', endStick);
+    stick.addEventListener('pointercancel', endStick);
+
+    function moveStick(e) {
+      let dx = e.clientX - sox, dy = e.clientY - soy;
+      const d = Math.hypot(dx, dy);
+      if (d > MAXR) { dx *= MAXR / d; dy *= MAXR / d; }
+      knob.style.transform = `translate(${dx}px,${dy}px)`;
+      stickVec.x = dx / MAXR;
+      stickVec.y = dy / MAXR;
+    }
+
+    $('#tap-act').addEventListener('click', tryInteract);
+    $('#prompt').addEventListener('click', tryInteract);
+
+    /* ============================================================
+       4. PANEL + PROGRESS
+       ============================================================ */
+
+    const panel = $('#panel'), promptEl = $('#prompt'), actBtn = $('#tap-act');
+    let near = null, openId = null, seenCount = 0;
+
+    $('#prompt-key').textContent = isTouch ? 'TAP' : 'E';
+
+    function openPanel(s) {
+      openId = s.id;
+      $('#p-kicker').textContent = s.kicker;
+      $('#p-title').textContent = s.label;
+      $('#p-body').innerHTML = s.body;
+      $('#p-body').scrollTop = 0;
+      panel.classList.add('open');
+      panel.setAttribute('aria-hidden', 'false');
+      paused = true;
+      keys.clear();
+      promptEl.classList.remove('on');
+      $('#p-close').focus();
+
+      if (!s.seen) {
+        s.seen = true;
+        s.beacon.material = M.glowS;
+        s.beacon.scale.setScalar(.55);
+        seenCount++;
+        $('#bar i').style.width = (seenCount / built.length * 100) + '%';
+        if (seenCount === built.length) setTimeout(() => $('#toast').classList.add('on'), 700);
+      }
+    }
+
+    function closePanel() {
+      if (!openId) return;
+      openId = null;
+      panel.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+      paused = false;
+    }
+
+    $('#p-close').addEventListener('click', closePanel);
+
+    function tryInteract() {
+      if (openId) { closePanel(); return; }
+      if (near) openPanel(near);
+    }
+
+    $('#toast').addEventListener('click', e => {
+      if (e.target.tagName !== 'A') $('#toast').classList.remove('on');
+    });
+
+    /* ============================================================
+       5. LOOP
+       ============================================================ */
+
+    const SPEED = 10.5;
+    const REACH = 5.2;
+    const dir = new THREE.Vector3();
+    const camTarget = new THREE.Vector3();
+    let facing = Math.PI, clockT = 0, walkT = 0;
+    const clock = new THREE.Clock();
+
+    // Stations block movement: a circle per station, pushed out of.
+    const BLOCK = built.map(b => ({ v: b.v, r: b.kind === 'belt' ? 4.4 : 3.2 }));
+
+    function step() {
+      const dt = Math.min(clock.getDelta(), 0.05);
+      clockT += dt;
+
+      let ix = 0, iz = 0;
+      if (!paused) {
+        if (keys.has('a') || keys.has('arrowleft')) ix -= 1;
+        if (keys.has('d') || keys.has('arrowright')) ix += 1;
+        if (keys.has('w') || keys.has('arrowup')) iz -= 1;
+        if (keys.has('s') || keys.has('arrowdown')) iz += 1;
+        ix += stickVec.x; iz += stickVec.y;
+      }
+
+      const mag = Math.hypot(ix, iz);
+      const moving = mag > 0.08;
+
+      if (moving) {
+        const n = Math.min(mag, 1) / mag;
+        const p = player.position;
+        p.x += ix * n * SPEED * dt;
+        p.z += iz * n * SPEED * dt;
+
+        // room bounds
+        p.x = Math.max(-BOUND, Math.min(BOUND, p.x));
+        p.z = Math.max(-BOUND, Math.min(BOUND, p.z));
+
+        // push out of furniture
+        for (const b of BLOCK) {
+          const dx = p.x - b.v.x, dz = p.z - b.v.z;
+          const d = Math.hypot(dx, dz);
+          if (d < b.r && d > 0.0001) {
+            p.x = b.v.x + dx / d * b.r;
+            p.z = b.v.z + dz / d * b.r;
+          }
+        }
+
+        // turn towards travel, shortest way round
+        const want = Math.atan2(ix, iz);
+        let diff = ((want - facing + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
+        facing += diff * Math.min(1, dt * 14);
+        walkT += dt;
+      }
+
+      rig.rotation.y = facing;
+      rig.position.y = moving && !reduced ? Math.abs(Math.sin(walkT * 11)) * .13 : 0;
+      rig.rotation.z = moving && !reduced ? Math.sin(walkT * 11) * .035 : 0;
+
+      // camera follows on x/z only — angle never changes, so nobody gets lost
+      camTarget.set(player.position.x * .55, 0, player.position.z * .55);
+      camera.position.x += (camTarget.x + CAM_OFF.x - camera.position.x) * Math.min(1, dt * 3.4);
+      camera.position.z += (camTarget.z + CAM_OFF.z * (innerHeight > innerWidth ? 1.34 : 1) - camera.position.z) * Math.min(1, dt * 3.4);
+      camera.lookAt(player.position.x * .6, 2.2, player.position.z * .6);
+
+      // nearest station in reach
+      let best = null, bestD = REACH;
+      for (const b of built) {
+        const d = Math.hypot(player.position.x - b.v.x, player.position.z - b.v.z);
+        if (d < bestD) { bestD = d; best = b; }
+
+        // beacons idle-animate; unseen ones bob harder to pull you over
+        if (!reduced) {
+          b.beacon.rotation.y = clockT * (b.seen ? .5 : 1.5);
+          b.beacon.position.y = 5.1 + Math.sin(clockT * 2 + b.v.x) * (b.seen ? .08 : .28);
+        }
+        const t = b.seen ? .55 : 1 + Math.sin(clockT * 3 + b.v.z) * .09;
+        b.beacon.scale.setScalar(t);
+      }
+
+      if (best !== near) {
+        near = best;
+        if (near && !openId) {
+          $('#prompt-what').textContent = (near.seen ? 'Look again — ' : 'Inspect — ') + near.label;
+          promptEl.classList.add('on');
+          actBtn.classList.add('live');
+        } else {
+          promptEl.classList.remove('on');
+          actBtn.classList.remove('live');
+        }
+      }
+
+      // conveyor parts creep along the 7-day line
+      const belt = built.find(b => b.kind === 'belt');
+      if (belt && !reduced) {
+        belt.group.userData.parts.forEach((p, i) => {
+          p.position.x = -3.4 + ((i * 2.3 + clockT * .9) % 9.2);
+          p.rotation.y = clockT * .6;
+        });
+      }
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(step);
+    }
+
+    /* ============================================================
+       6. GATE — render one frame behind the card, then let them in.
+       ============================================================ */
+
+    Promise.race([
+      document.fonts ? document.fonts.ready : Promise.resolve(),
+      new Promise(r => setTimeout(r, 1800))
+    ]).then(() => {
+      // redraw labels now that the display font is actually available
+      built.forEach(b => {
+        b.group.remove(b.nameSprite);
+        b.nameSprite.material.map.dispose();
+        b.nameSprite.material.dispose();
+        const l = labelSprite(b.label, '#F0EDE4');
+        l.position.set(0, 6.2, 0);
+        b.group.add(l);
+        b.nameSprite = l;
+      });
+      renderer.compile(scene, camera);
+      renderer.render(scene, camera);
+      enterBtn.disabled = false;
+      enterBtn.textContent = 'Enter the workshop';
+      step();
+    });
+
+    enterBtn.addEventListener('click', () => {
+      gate.classList.add('gone');
+      paused = false;
+      setTimeout(() => { gate.style.display = 'none'; }, 520);
+    });
+
+    // If three.js itself never arrives, don't leave a dead loader.
+    setTimeout(() => {
+      if (enterBtn.disabled) bail();
+    }, 9000);
+  </script>
+
+  <script>
+    // Module didn't load at all (old browser, blocked CDN, offline) → normal site.
+    window.addEventListener('error', e => {
+      if (e.message && /import|module|three/i.test(e.message)) {
+        document.getElementById('nogl').classList.add('on');
+      }
+    }, true);
+
+    if (!('noModule' in HTMLScriptElement.prototype)) {
+      document.getElementById('nogl').classList.add('on');
+    }
+  </script>
+
+</body>
+
+</html>
