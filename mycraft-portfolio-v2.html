@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <title>MyCraft — Websites for Rajkot businesses</title>
+  <meta name="description"
+    content="MyCraft builds fast, simple websites for businesses in Rajkot. Live in one week. Hosting and monthly updates included.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ink: #111815;
+      --ink-2: #1A2320;
+      --ink-3: #26332E;
+      --line: #33443D;
+      --paper: #F0EDE4;
+      --muted: #93A69E;
+      --marigold: #E9A227;
+      --sage: #7FBBA3;
+      --r: 3px;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth
+    }
+
+    body {
+      margin: 0;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: "Instrument Sans", system-ui, sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img {
+      max-width: 100%;
+      display: block
+    }
+
+    a {
+      color: inherit
+    }
+
+    ::selection {
+      background: var(--marigold);
+      color: var(--ink)
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px
+    }
+
+    .mono {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted)
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: "Bricolage Grotesque", system-ui, sans-serif;
+      font-weight: 800;
+      line-height: 1.03;
+      letter-spacing: -.025em;
+      margin: 0
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 6.6vw, 4.4rem)
+    }
+
+    h2 {
+      font-size: clamp(1.85rem, 4vw, 2.8rem)
+    }
+
+    h3 {
+      font-size: 1.12rem;
+      font-weight: 800;
+      letter-spacing: -.01em
+    }
+
+    p {
+      margin: 0 0 1em
+    }
+
+    .lede {
+      font-size: clamp(1.03rem, 2vw, 1.22rem);
+      color: #CFD8D3;
+      max-width: 46ch
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(17, 24, 21, .93);
+      backdrop-filter: blur(8px)
+    }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      height: 64px
+    }
+
+    .logo {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: -.03em;
+      text-decoration: none
+    }
+
+    .logo span {
+      color: var(--marigold)
+    }
+
+    .bar .mono {
+      display: none
+    }
+
+    @media(min-width:720px) {
+      .bar .mono {
+        display: block
+      }
+    }
+
+    .hero {
+      padding: clamp(54px, 9vw, 104px) 0 clamp(44px, 7vw, 84px)
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: 42px;
+      align-items: start
+    }
+
+    @media(min-width:900px) {
+      .hero-grid {
+        grid-template-columns: 1.05fr .95fr;
+        gap: 54px
+      }
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--marigold)
+    }
+
+    .hero .lede {
+      margin-top: 20px
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px
+    }
+
+    .btn {
+      display: inline-block;
+      font-weight: 600;
+      font-size: .95rem;
+      padding: 13px 22px;
+      border-radius: var(--r);
+      text-decoration: none;
+      border: 1px solid var(--marigold);
+      background: var(--marigold);
+      color: var(--ink);
+      transition: transform .12s ease
+    }
+
+    .btn:hover {
+      transform: translateY(-1px)
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--paper);
+      border-color: var(--line)
+    }
+
+    .btn.ghost:hover {
+      border-color: var(--paper)
+    }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 2px solid var(--sage);
+      outline-offset: 3px
+    }
+
+    .card {
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      position: relative;
+      overflow: hidden
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--marigold)
+    }
+
+    .card-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 20px 14px 22px;
+      border-bottom: 1px dashed var(--line)
+    }
+
+    .rows {
+      padding: 6px 20px 16px 22px
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 14px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(51, 68, 61, .5);
+      font-size: .94rem
+    }
+
+    .row:last-child {
+      border-bottom: none
+    }
+
+    .row .k {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-top: 4px
+    }
+
+    .row .v.blank {
+      color: var(--muted);
+      border-bottom: 1px dashed var(--line);
+      padding-bottom: 2px
+    }
+
+    .stamp {
+      display: inline-block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--marigold);
+      border: 1px solid var(--marigold);
+      padding: 3px 8px;
+      border-radius: 2px
+    }
+
+    section {
+      padding: clamp(52px, 7.5vw, 92px) 0;
+      border-top: 1px solid var(--line)
+    }
+
+    .sec-head {
+      margin-bottom: 34px;
+      max-width: 54ch
+    }
+
+    .sec-head h2 {
+      margin: 10px 0 14px
+    }
+
+    .sec-head p {
+      color: #B9C4BF;
+      margin: 0
+    }
+
+    .work-grid {
+      display: grid;
+      gap: 18px
+    }
+
+    @media(min-width:820px) {
+      .work-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    .work-body {
+      padding: 20px 22px 22px 24px
+    }
+
+    .work h3 {
+      margin: 8px 0 6px
+    }
+
+    .work .desc {
+      color: #B9C4BF;
+      font-size: .95rem;
+      margin: 0 0 14px
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px
+    }
+
+    .tag {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      padding: 3px 7px;
+      border-radius: 2px
+    }
+
+    .plans {
+      display: grid;
+      gap: 18px
+    }
+
+    @media(min-width:820px) {
+      .plans {
+        grid-template-columns: repeat(3, 1fr)
+      }
+    }
+
+    .plan {
+      padding: 24px 22px
+    }
+
+    .plan .price {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-weight: 800;
+      font-size: 2rem;
+      letter-spacing: -.03em;
+      margin: 14px 0 2px
+    }
+
+    .plan .per {
+      font-size: .85rem;
+      color: var(--muted);
+      margin-bottom: 16px
+    }
+
+    .plan ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-size: .94rem
+    }
+
+    .plan li {
+      padding: 7px 0 7px 22px;
+      position: relative;
+      color: #C7D0CC
+    }
+
+    .plan li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 15px;
+      width: 9px;
+      height: 2px;
+      background: var(--marigold)
+    }
+
+    .steps {
+      display: grid;
+      gap: 0
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 18px;
+      padding: 20px 4px;
+      border-bottom: 1px solid var(--line);
+      align-items: start
+    }
+
+    .step:first-child {
+      border-top: 1px solid var(--line)
+    }
+
+    .step .n {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      color: var(--marigold);
+      letter-spacing: .1em;
+      padding-top: 5px;
+      white-space: nowrap
+    }
+
+    .step h3 {
+      margin-bottom: 3px
+    }
+
+    .step p {
+      margin: 0;
+      color: #B9C4BF;
+      font-size: .95rem
+    }
+
+    .contact-grid {
+      display: grid;
+      gap: 30px
+    }
+
+    @media(min-width:820px) {
+      .contact-grid {
+        grid-template-columns: 1.1fr .9fr;
+        align-items: start
+      }
+    }
+
+    .contact-list {
+      list-style: none;
+      margin: 0;
+      padding: 0
+    }
+
+    .contact-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .contact-list li:last-child {
+      border-bottom: none
+    }
+
+    .contact-list a {
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px solid transparent
+    }
+
+    .contact-list a:hover {
+      border-bottom-color: var(--marigold)
+    }
+
+    .contact-list .mono {
+      display: block;
+      margin-bottom: 3px
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 26px 0 40px
+    }
+
+    .foot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      width: 100%
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      * {
+        animation: none !important;
+        transition: none !important
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="wrap bar">
+      <a class="logo" href="#top">My<span>Craft</span></a>
+      <span class="mono">Rajkot · Websites for local business</span>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ============ HERO ============ -->
+    <div class="wrap hero">
+      <div class="hero-grid">
+        <div>
+          <span class="mono">Web design &amp; build</span>
+          <h1 style="margin-top:18px">People search first.<br><em>Then they decide.</em></h1>
+          <p class="lede">We build simple, fast websites for Rajkot businesses — so the people already looking for you
+            find you, see what you offer, and get in touch.</p>
+          <div class="cta-row">
+            <a class="btn" href="#contact">Talk to us</a>
+            <a class="btn ghost" href="#work">See our work</a>
+          </div>
+        </div>
+
+        <div class="card" aria-label="Sample work order">
+          <div class="card-head">
+            <span class="mono">Work order</span>
+            <span class="stamp">Open</span>
+          </div>
+          <div class="rows">
+            <div class="row"><span class="k">Client</span><span class="v blank">MyCraft</span></div>
+            <div class="row"><span class="k">Scope</span><span class="v">Website, mobile-ready, WhatsApp enquiry</span>
+            </div>
+            <div class="row"><span class="k">Delivery</span><span class="v">7 working days from content handover</span>
+            </div>
+            <div class="row"><span class="k">Includes</span><span class="v">Domain setup, hosting, Google listing
+                link</span></div>
+            <div class="row"><span class="k">After</span><span class="v">Monthly updates &amp; support, cancel
+                anytime</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ WORK ============ -->
+    <section id="work">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="mono">Selected work</span>
+          <h2>What we've built</h2>
+          <p>A small team that ships. Below is real work — products we designed, built and put live.</p>
+        </div>
+
+        <div class="work-grid">
+
+          <article class="card work">
+            <div class="work-body">
+              <span class="mono">Education</span>
+              <h3>ScholarNode</h3>
+              <p class="desc">Our own education venture — AI workshops delivered in schools across Gujarat, with
+                co-branded certificates. We designed and built the whole platform: enrolment, school portal, payments
+                and certificate issue.</p>
+              <div class="tags">
+                <span class="tag">Next.js</span><span class="tag">Supabase</span><span class="tag">Razorpay</span><span
+                  class="tag">Enrolment flow</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card work">
+            <div class="work-body">
+              <span class="mono">Education · AI</span>
+              <h3>VidyaVani</h3>
+              <p class="desc">A Gujarati-medium learning platform that answers student questions in their own language.
+                Built for an AI Summit challenge, using Google's Gemini API for the language work.</p>
+              <div class="tags">
+                <span class="tag">Gujarati-first</span><span class="tag">Gemini API</span><span class="tag">Web
+                  app</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card work">
+            <div class="work-body">
+              <span class="mono">Business tooling · Rajkot</span>
+              <h3>Property valuation reports</h3>
+              <p class="desc">A valuer in Rajkot was writing every report by hand. We built a web tool where the details
+                go into a form and a finished, formatted report comes out — hours of typing cut to minutes.</p>
+              <div class="tags">
+                <span class="tag">Flask</span><span class="tag">Document automation</span><span class="tag">Smart
+                  forms</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card work">
+            <div class="work-body">
+              <span class="mono">Web app</span>
+              <h3>Tally — shared expense tracker</h3>
+              <p class="desc">A group trip needed one clear record of who paid what. We built a mobile-first app that
+                tracks contributions, splits cash from bank money, and shows the balance at a glance. Live on the web,
+                no app store needed.</p>
+              <div class="tags">
+                <span class="tag">Mobile-first</span><span class="tag">Works offline</span><span class="tag">Live on
+                  Netlify</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card work">
+            <div class="work-body">
+              <span class="mono">Retail · Jewellery</span>
+              <h3>Aadita Fashion Jwellery</h3>
+              <p class="desc">Product advertising videos for an imitation jewellery business — built so the stones and
+                finish stay true on camera, and the pieces look the way they do in the shop.</p>
+              <div class="tags">
+                <span class="tag">Video ads</span><span class="tag">Product visuals</span><span class="tag">Social
+                  content</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card work">
+            <div class="work-body">
+              <span class="mono">Language tech</span>
+              <h3>AIdeaForge</h3>
+              <p class="desc">A Gujarati transliteration tool that reads signage and converts it — built with a Python
+                backend and deployed live. Useful groundwork for anything that has to handle Gujarati text properly on
+                the web.</p>
+              <div class="tags">
+                <span class="tag">FastAPI</span><span class="tag">Gujarati text</span><span class="tag">Deployed</span>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FOR COACHING CLASSES ============ -->
+    <section id="classes">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="mono">For coaching classes &amp; tuition</span>
+          <h2>What parents look for before they call</h2>
+          <p>Most classes in Rajkot are found on Google and judged in thirty seconds. These are the pages that decide
+            it.</p>
+        </div>
+
+        <div class="work-grid">
+          <article class="card work">
+            <div class="work-body">
+              <h3>Results</h3>
+              <p class="desc">Toppers, percentages, selections — with photos and years. The first thing a parent looks
+                for, and the thing almost no class in Rajkot has online.</p>
+            </div>
+          </article>
+          <article class="card work">
+            <div class="work-body">
+              <h3>Batches &amp; timings</h3>
+              <p class="desc">Standard-wise batches, subjects, and timings on one page. Cuts the repeated "kaya batch
+                chalu chhe?" phone calls to your staff.</p>
+            </div>
+          </article>
+          <article class="card work">
+            <div class="work-body">
+              <h3>Fees, stated plainly</h3>
+              <p class="desc">Clear fee structure with what's included. Parents trust a class that publishes its fees —
+                and it stops any confusion before admission.</p>
+            </div>
+          </article>
+          <article class="card work">
+            <div class="work-body">
+              <h3>Admission enquiry</h3>
+              <p class="desc">A short form that lands directly on your WhatsApp with the student's name, standard and
+                number. No missed calls during class hours.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROCESS ============ -->
+    <section id="process">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="mono">How it works</span>
+          <h2>Seven days, four steps</h2>
+          <p>You'll know exactly where the work stands at every stage. No long email chains, no surprises.</p>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <span class="n">Day 1</span>
+            <div>
+              <h3>We visit you</h3>
+              <p>Twenty minutes to understand what you do, who your customers are, and what the site needs to achieve.
+                We take photos if you need them.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="n">Day 2–4</span>
+            <div>
+              <h3>We build the first version</h3>
+              <p>You get a working site on a real link — not a picture of one. Open it on your phone, show it to your
+                family, tell us what to change.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="n">Day 5–6</span>
+            <div>
+              <h3>You review, we fix</h3>
+              <p>Two rounds of changes included. Text, photos, prices, sections — whatever needs adjusting.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="n">Day 7</span>
+            <div>
+              <h3>We put it live</h3>
+              <p>Domain, hosting and your Google listing all connected. We hand over the login and stay on for updates.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PRICING ============ -->
+    <section id="pricing">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="mono">Pricing</span>
+          <h2>Fixed prices, no quotations</h2>
+          <p>Pick a package. What you see is what you pay.</p>
+        </div>
+
+        <div class="plans">
+          <div class="card plan">
+            <span class="mono">Starter</span>
+            <div class="price">₹6,000</div>
+            <div class="per">one time</div>
+            <ul>
+              <li>Single page</li>
+              <li>Photos, timings, location map</li>
+              <li>WhatsApp and call buttons</li>
+              <li>Live in 7 days</li>
+            </ul>
+          </div>
+          <div class="card plan">
+            <span class="mono">Business</span>
+            <div class="price">₹12,000</div>
+            <div class="per">one time</div>
+            <ul>
+              <li>Four to six pages</li>
+              <li>Gallery and results sections</li>
+              <li>Enquiry form to your WhatsApp</li>
+              <li>Google listing connected</li>
+              <li>Live in 7 days</li>
+            </ul>
+          </div>
+          <div class="card plan">
+            <span class="mono">Care plan</span>
+            <div class="price">₹1,500</div>
+            <div class="per">per month</div>
+            <ul>
+              <li>Hosting and domain renewal</li>
+              <li>Content and fee updates</li>
+              <li>New photos added monthly</li>
+              <li>We fix anything that breaks</li>
+              <li>Cancel any time</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section id="contact">
+      <div class="wrap">
+        <div class="contact-grid">
+          <div>
+            <span class="mono">Get in touch</span>
+            <h2 style="margin:10px 0 14px">Tell us about your business</h2>
+            <p class="lede">Send us your name and what you do. We'll reply the same day with what we'd build and what it
+              costs.</p>
+            <div class="cta-row">
+              <a class="btn" href="https://wa.me/918734881141">Message on WhatsApp</a>
+            </div>
+          </div>
+          <div class="card" style="padding:8px 22px 14px">
+            <ul class="contact-list">
+              <li><span class="mono">WhatsApp</span><a href="https://wa.me/919601526673">+91 9601526673</a></li>
+              <li><span class="mono">Call</span><a href="tel:+918734881141">+91 8734881141</a></li>
+              <li><span class="mono">Email</span><a href="mailto:gajjartanmayh@gmail.com">gajjartanmayh@gmail.com</a>
+              </li>
+              <li><span class="mono">Based in</span><span style="font-weight:600">Rajkot, Gujarat</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap foot">
+      <span class="mono">MyCraft by Tanmay Gajjar · Rajkot</span>
+      <span class="mono">Designed and built in-house</span>
+    </div>
+  </footer>
+
+</body>
+
+</html>
