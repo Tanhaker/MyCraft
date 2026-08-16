@@ -353,7 +353,7 @@
 
     @media(min-width:820px) {
       .plans {
-        grid-template-columns: repeat(3, 1fr)
+        grid-template-columns: repeat(2, 1fr)
       }
     }
 
@@ -495,6 +495,23 @@
         animation: none !important;
         transition: none !important
       }
+    }
+    .care-plan-card {
+      margin-top: 24px;
+      border-color: var(--sage);
+      background: rgba(127, 187, 163, 0.05);
+    }
+
+    .care-plan-card::before {
+      background: var(--sage);
+    }
+
+    .care-plan-card .mono {
+      color: var(--sage);
+    }
+
+    .care-plan-card li::before {
+      background: var(--sage);
     }
   </style>
 </head>
@@ -760,11 +777,17 @@
               <li>Live in 7 days</li>
             </ul>
           </div>
-          <div class="card plan">
-            <span class="mono">Care plan</span>
-            <div class="price">₹1,500</div>
-            <div class="per">per month</div>
-            <ul>
+        </div>
+
+        <div class="card plan care-plan-card" style="display: flex; flex-wrap: wrap; gap: 24px; align-items: center;">
+          <div style="flex: 1; min-width: 200px;">
+            <span class="mono">Maintenance</span>
+            <div class="price" style="margin-top: 8px;">Care plan</div>
+            <div class="per" style="margin-bottom: 0; font-size: 1.1rem; color: var(--sage);">₹1,500 / month</div>
+            <p style="margin-top: 12px; font-size: 0.95rem; color: #B9C4BF; margin-bottom: 0;">We handle the technical side so you don't have to.</p>
+          </div>
+          <div style="flex: 1.5; min-width: 260px;">
+            <ul style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
               <li>Hosting and domain renewal</li>
               <li>Content and fee updates</li>
               <li>New photos added monthly</li>
