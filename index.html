@@ -513,6 +513,122 @@
     .care-plan-card li::before {
       background: var(--sage);
     }
+
+    /* Skeleton UI Styles */
+    .skeleton-window {
+      background: linear-gradient(160deg, var(--ink-2) 0%, var(--ink) 100%);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line);
+    }
+    
+    .skeleton-window::before {
+      display: none;
+    }
+
+    .skel-head {
+      display: flex;
+      gap: 6px;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(51, 68, 61, .5);
+      background: rgba(0,0,0,0.2);
+    }
+    
+    .skel-head .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-r { background: #FF5F56; }
+    .dot-y { background: #FFBD2E; }
+    .dot-g { background: #27C93F; }
+
+    .skel-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    
+    .skel-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .skel-logo {
+      width: 64px;
+      height: 14px;
+      background: var(--line);
+      border-radius: 4px;
+    }
+    
+    .skel-links {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .skel-link {
+      width: 28px;
+      height: 6px;
+      background: var(--line);
+      border-radius: 4px;
+    }
+
+    .skel-hero {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .skel-title {
+      height: 22px;
+      background: var(--paper);
+      opacity: 0.9;
+      border-radius: 4px;
+      width: 85%;
+    }
+    
+    .skel-text {
+      height: 10px;
+      background: var(--muted);
+      opacity: 0.5;
+      border-radius: 4px;
+    }
+    
+    .skel-btn {
+      width: 80px;
+      height: 32px;
+      background: var(--line);
+      border-radius: 4px;
+    }
+    .ghost-btn {
+      background: transparent;
+      border: 1px solid var(--line);
+    }
+
+    .skel-image {
+      height: 130px;
+      background: var(--ink-3);
+      border-radius: 6px;
+      border: 1px dashed var(--muted);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skel-shine {
+      position: absolute;
+      top: 0; left: -100%;
+      width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+      animation: shine 2.5s infinite ease-in-out;
+    }
+
+    @keyframes shine {
+      0% { left: -100%; }
+      100% { left: 200%; }
+    }
   </style>
 </head>
 
@@ -541,21 +657,34 @@
           </div>
         </div>
 
-        <div class="card" aria-label="Sample work order">
-          <div class="card-head">
-            <span class="mono">Work order</span>
-            <span class="stamp">Open</span>
+        <div class="card skeleton-window" aria-hidden="true">
+          <div class="skel-head">
+            <div class="dot dot-r"></div>
+            <div class="dot dot-y"></div>
+            <div class="dot dot-g"></div>
           </div>
-          <div class="rows">
-            <div class="row"><span class="k">Client</span><span class="v blank">MyCraft</span></div>
-            <div class="row"><span class="k">Scope</span><span class="v">Website, mobile-ready, WhatsApp enquiry</span>
+          <div class="skel-body">
+            <div class="skel-nav">
+              <div class="skel-logo"></div>
+              <div class="skel-links">
+                <div class="skel-link"></div>
+                <div class="skel-link"></div>
+                <div class="skel-link" style="width: 36px; background: var(--marigold);"></div>
+              </div>
             </div>
-            <div class="row"><span class="k">Delivery</span><span class="v">7 working days from content handover</span>
+            <div class="skel-hero">
+              <div class="skel-title"></div>
+              <div class="skel-title" style="width: 55%;"></div>
+              <div class="skel-text" style="margin-top: 14px; width: 75%;"></div>
+              <div class="skel-text" style="width: 60%;"></div>
+              <div style="display: flex; gap: 10px; margin-top: 20px;">
+                 <div class="skel-btn"></div>
+                 <div class="skel-btn ghost-btn"></div>
+              </div>
             </div>
-            <div class="row"><span class="k">Includes</span><span class="v">Domain setup, hosting, Google listing
-                link</span></div>
-            <div class="row"><span class="k">After</span><span class="v">Monthly updates &amp; support, cancel
-                anytime</span></div>
+            <div class="skel-image">
+               <div class="skel-shine"></div>
+            </div>
           </div>
         </div>
       </div>
