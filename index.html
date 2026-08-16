@@ -496,6 +496,47 @@
         transition: none !important
       }
     }
+    /* .bar .mono is hidden under 720px — the lab link is worth the space */
+    .bar .lab-link {
+      display: block;
+      font-size: 10px;
+      padding: 6px 9px;
+    }
+
+    @media(min-width:720px) {
+      .bar .lab-link { font-size: 11px; padding: 7px 11px }
+    }
+
+    .lab-link {
+      text-decoration: none;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 7px 11px;
+      transition: border-color .15s ease, color .15s ease;
+    }
+
+    .lab-link:hover {
+      border-color: var(--marigold);
+      color: var(--marigold);
+    }
+
+    .lab-strip {
+      margin-top: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 22px 20px 24px;
+    }
+
+    .lab-strip p {
+      margin: 6px 0 0;
+      color: #B9C4BF;
+      font-size: .95rem;
+      max-width: 52ch;
+    }
+
     .care-plan-card {
       margin-top: 24px;
       border-color: var(--sage);
@@ -637,7 +678,7 @@
   <header>
     <div class="wrap bar">
       <a class="logo" href="#top">My<span>Craft</span></a>
-      <span class="mono">Rajkot · Websites for local business</span>
+      <a class="mono lab-link" href="/lab">Walk our 3D workshop →</a>
     </div>
   </header>
 
@@ -781,6 +822,16 @@
             </div>
           </article>
 
+        </div>
+
+        <div class="card lab-strip">
+          <div>
+            <span class="mono">Also from us</span>
+            <h3 style="margin:6px 0 0">The workshop, in 3D</h3>
+            <p>An interactive version of this page you can actually walk around — built in the browser, no app, no
+              download. If you run a game zone or a gaming café, this is the kind of thing we can build for you.</p>
+          </div>
+          <a class="btn ghost" href="/lab" style="flex:none">Walk the floor →</a>
         </div>
       </div>
     </section>
